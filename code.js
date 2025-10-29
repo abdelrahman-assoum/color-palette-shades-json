@@ -42,6 +42,7 @@ async function drawPaletteCard(paletteObj, leftTitle) {
   await ensureFonts();
 
   const order = [
+    "0",
     "50",
     "100",
     "200",
@@ -52,13 +53,14 @@ async function drawPaletteCard(paletteObj, leftTitle) {
     "700",
     "800",
     "900",
+    "950",
   ];
   const shades = order
     .map((k) => ({ key: k, hex: paletteObj.shades[k] }))
     .filter((s) => !!s.hex);
 
   if (shades.length === 0) {
-    figma.notify("No valid shades found (50–900).");
+    figma.notify("No valid shades found (0–950).");
     return;
   }
 
