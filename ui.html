@@ -1,56 +1,390 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
     <style>
-      body { font: 12px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto; margin: 12px; }
-      textarea { width: 100%; height: 160px; box-sizing: border-box; }
-      label { display:block; margin: 8px 0 4px; font-weight: 600; }
-      input[type=text] { width: 100%; box-sizing: border-box; padding: 6px; }
-      .row { display:flex; gap:8px; margin-top: 10px; }
-      button { padding: 8px 10px; font-weight:600; cursor:pointer; }
-      small { color:#666 }
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, sans-serif;
+        margin: 0;
+        padding: 24px;
+        background-color: #ffffff;
+        color: #333333;
+        line-height: 1.5;
+      }
+
+      .container {
+        max-width: 400px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 0 0 20px 0;
+        color: #0d0d0d;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      label {
+        display: block;
+        font-weight: 500;
+        font-size: 14px;
+        margin-bottom: 6px;
+        color: #424242;
+      }
+
+      .help-text {
+        font-size: 12px;
+        color: #666666;
+        margin-top: 4px;
+      }
+
+      textarea,
+      input[type="text"] {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        font-family: "Inter", monospace;
+        font-size: 13px;
+        background-color: #fafafa;
+        transition: border-color 0.2s ease;
+      }
+
+      textarea:focus,
+      input[type="text"]:focus {
+        outline: none;
+        border-color: #007acc;
+        background-color: #ffffff;
+      }
+
+      textarea {
+        min-height: 160px;
+        resize: vertical;
+        font-family: "Inter", monospace;
+      }
+
+      .button-group {
+        margin-top: 24px;
+      }
+
+      button {
+        background-color: #007acc;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        width: 100%;
+      }
+
+      button:hover {
+        background-color: #0056b3;
+      }
+
+      button:active {
+        background-color: #004080;
+      }
+
+      .example-section {
+        margin-top: 24px;
+        border-top: 1px solid #e0e0e0;
+        padding-top: 20px;
+      }
+
+      .example-toggle {
+        background: none;
+        border: none;
+        color: #007acc;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        padding: 0;
+        text-decoration: underline;
+      }
+
+      .example-toggle:hover {
+        color: #0056b3;
+      }
+
+      .example-content {
+        margin-top: 12px;
+        background-color: #f8f9fa;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 16px;
+        font-family: "Inter", monospace;
+        font-size: 12px;
+        color: #333333;
+        white-space: pre-wrap;
+        overflow-x: auto;
+      }
+
+      .preview-section {
+        margin-top: 16px;
+        margin-bottom: 20px;
+      }
+
+      .preview-title {
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 8px;
+        color: #424242;
+      }
+
+      .color-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+
+      .color-square {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        border: 1px solid #e0e0e0;
+        position: relative;
+        cursor: pointer;
+        transition: transform 0.1s ease;
+      }
+
+      .color-square:hover {
+        transform: scale(1.1);
+      }
+
+      .color-label {
+        position: absolute;
+        bottom: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 10px;
+        font-weight: 500;
+        color: #666666;
+        white-space: nowrap;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 2px 4px;
+        border-radius: 3px;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        pointer-events: none;
+      }
+
+      .color-square:hover .color-label {
+        opacity: 1;
+      }
+
+      .hidden {
+        display: none;
+      }
     </style>
   </head>
   <body>
-    <label>Palette JSON <small>(see example below)</small></label>
-    <textarea id="json"></textarea>
+    <div class="container">
+      <h1>Color Palette Printer</h1>
 
-    <label>Title on the left (e.g., “Primary Color”)</label>
-    <input id="title" type="text" value="Primary Color"/>
+      <div class="form-group">
+        <label for="json">Palette JSON</label>
+        <textarea
+          id="json"
+          placeholder="Paste your palette JSON here..."
+        ></textarea>
+        <div class="help-text">
+          Enter a JSON object with palette name and shades (0-950)
+        </div>
 
-    <div class="row">
-      <button id="render">Create on Canvas</button>
+        <div class="preview-section" id="preview-section" style="display: none">
+          <div class="preview-title">Preview:</div>
+          <div class="color-grid" id="color-grid"></div>
+          <div class="preview-error" id="preview-error"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="title">Display Title</label>
+        <input
+          id="title"
+          type="text"
+          value="Primary Color"
+          placeholder="e.g., Primary Color"
+        />
+        <div class="help-text">
+          Title shown on the left side of the palette card
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button id="render">Create Palette on Canvas</button>
+      </div>
+
+      <div class="example-section">
+        <button class="example-toggle" id="toggle-example">
+          Show JSON Example
+        </button>
+        <div id="example-content" class="example-content hidden">
+          { "name": "Primary", "shades": { "0": "#FFFFFF", "50": "#EDF3FF",
+          "100": "#DFE9FF", "200": "#C7D8FB", "300": "#A7C1F4", "400":
+          "#6D8FE3", "500": "#3D66CF", "600": "#274EB3", "700": "#193E8F",
+          "800": "#132E6B", "900": "#0C1E47", "950": "#06102A" } }
+        </div>
+      </div>
     </div>
 
-    <details style="margin-top:10px">
-      <summary>JSON example (single palette)</summary>
-      <pre>{
-  "name": "Primary",
-  "shades": {
-    "50":  "#EDF3FF",
-    "100": "#DFE9FF",
-    "200": "#C7D8FB",
-    "300": "#A7C1F4",
-    "400": "#6D8FE3",
-    "500": "#3D66CF",
-    "600": "#274EB3",
-    "700": "#193E8F",
-    "800": "#132E6B",
-    "900": "#0C1E47"
-  }
-}</pre>
-    </details>
-
     <script>
-      document.getElementById('render').onclick = () => {
-        const raw = document.getElementById('json').value.trim();
-        const title = document.getElementById('title').value.trim() || 'Palette';
+      function updatePreview() {
+        const textarea = document.getElementById("json");
+        const previewSection = document.getElementById("preview-section");
+        const colorGrid = document.getElementById("color-grid");
+        const errorDiv = document.getElementById("preview-error");
+
+        const raw = textarea.value.trim();
+
+        if (!raw) {
+          previewSection.style.display = "none";
+          return;
+        }
+
         try {
           const parsed = JSON.parse(raw);
-          parent.postMessage({ pluginMessage: { type: 'render', payload: parsed, title } }, '*');
+          errorDiv.style.display = "none";
+
+          // Clear previous preview
+          colorGrid.innerHTML = "";
+
+          let palettes = [];
+
+          if (Array.isArray(parsed)) {
+            palettes = parsed;
+          } else if (parsed.shades && typeof parsed.shades === "object") {
+            palettes = [parsed];
+          }
+
+          palettes.forEach((palette, paletteIndex) => {
+            if (palette.shades && typeof palette.shades === "object") {
+              const shades = palette.shades;
+              const order = [
+                "0",
+                "50",
+                "100",
+                "200",
+                "300",
+                "400",
+                "500",
+                "600",
+                "700",
+                "800",
+                "900",
+                "950",
+              ];
+
+              if (palettes.length > 1) {
+                // Add palette name separator for multiple palettes
+                const paletteName = document.createElement("div");
+                paletteName.className = "palette-name";
+                paletteName.textContent =
+                  palette.name || `Palette ${paletteIndex + 1}`;
+                paletteName.style.fontSize = "12px";
+                paletteName.style.fontWeight = "500";
+                paletteName.style.marginBottom = "8px";
+                paletteName.style.marginTop = paletteIndex > 0 ? "16px" : "0";
+                paletteName.style.color = "#424242";
+                colorGrid.appendChild(paletteName);
+              }
+
+              order.forEach((key) => {
+                if (shades[key]) {
+                  const square = document.createElement("div");
+                  square.className = "color-square";
+                  square.style.backgroundColor = shades[key];
+                  square.title = `${key}: ${shades[key]}`;
+
+                  const label = document.createElement("div");
+                  label.className = "color-label";
+                  label.textContent = key;
+                  square.appendChild(label);
+
+                  colorGrid.appendChild(square);
+                }
+              });
+            }
+          });
+
+          if (colorGrid.children.length > 0) {
+            previewSection.style.display = "block";
+          } else {
+            previewSection.style.display = "none";
+          }
         } catch (e) {
-          alert('Invalid JSON: ' + e.message);
+          errorDiv.textContent = "Invalid JSON format";
+          errorDiv.style.display = "block";
+          previewSection.style.display = "none";
+        }
+      }
+
+      document.getElementById("json").addEventListener("input", updatePreview);
+
+      document.getElementById("render").onclick = () => {
+        const raw = document.getElementById("json").value.trim();
+        const title =
+          document.getElementById("title").value.trim() || "Palette";
+        try {
+          const parsed = JSON.parse(raw);
+          parent.postMessage(
+            { pluginMessage: { type: "render", payload: parsed, title } },
+            "*"
+          );
+        } catch (e) {
+          alert("Invalid JSON: " + e.message);
+        }
+      };
+
+      document.getElementById("toggle-example").onclick = () => {
+        const content = document.getElementById("example-content");
+        const isHidden = content.classList.contains("hidden");
+        if (isHidden) {
+          content.classList.remove("hidden");
+          document.getElementById("toggle-example").textContent =
+            "Hide JSON Example";
+
+          // Auto-populate example when shown
+          const exampleJson = {
+            name: "Primary",
+            shades: {
+              0: "#FFFFFF",
+              50: "#EDF3FF",
+              100: "#DFE9FF",
+              200: "#C7D8FB",
+              300: "#A7C1F4",
+              400: "#6D8FE3",
+              500: "#3D66CF",
+              600: "#274EB3",
+              700: "#193E8F",
+              800: "#132E6B",
+              900: "#0C1E47",
+              950: "#06102A",
+            },
+          };
+          document.getElementById("json").value = JSON.stringify(
+            exampleJson,
+            null,
+            2
+          );
+          updatePreview();
+        } else {
+          content.classList.add("hidden");
+          document.getElementById("toggle-example").textContent =
+            "Show JSON Example";
         }
       };
     </script>
